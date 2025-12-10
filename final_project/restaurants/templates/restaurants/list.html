@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}맛집 리스트 | finals 맛집{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 16px;">맛집 리스트</h2>
+
+{% if restaurants %}
+<div class="card-grid">
+    {% for r in restaurants %}
+        <a href="{% url 'restaurant_detail' r.pk %}" style="text-decoration:none; color:inherit;">
+            <div class="card">
+                <h3 class="card-title">{{ r.name }}</h3>
+                <p class="card-meta">
+                    {{ r.category }} · ⭐ {{ r.rating|default:"0.0" }}
+                </p>
+                <p style="font-size:13px; margin-top:8px;">
+                    {{ r.address }}
+                </p>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% else %}
+    <p>등록된 음식점이 없습니다. 관리자 페이지에서 먼저 추가해 주세요.</p>
+{% endif %}
+{% endblock %}

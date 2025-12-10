@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ restaurant.name }} | finals 맛집{% endblock %}
+
+{% block content %}
+<a href="{% url 'restaurant_list' %}" class="card-meta">&larr; 리스트로 돌아가기</a>
+
+<div class="card" style="margin-top:12px;">
+    <div class="detail-header">
+        <div>
+            <h1 class="card-title">{{ restaurant.name }}</h1>
+            <span class="badge">{{ restaurant.category }}</span>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:14px;">⭐ {{ restaurant.rating|default:"0.0" }}</div>
+            <div class="card-meta">ID: {{ restaurant.id }}</div>
+        </div>
+    </div>
+
+    <p style="margin-top:8px; font-size:14px;">
+        주소: {{ restaurant.address }}
+    </p>
+
+    <div style="margin-top:16px; font-size:13px; color:#6b7280;">
+        <p>위도: {{ restaurant.latitude }} / 경도: {{ restaurant.longitude }}</p>
+        <p>※ 지도 표시 / 현재 위치 거리 계산은 나중에 여기 아래에 붙이면 됩니다.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}맛집 추천{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'restaurants/style.css' %}">
+</head>
+<body>
+<header class="navbar">
+    <div class="nav-inner">
+        <a href="/" class="logo">🍜주변 맛집 찾기</a>
+        <nav class="nav-links">
+            <a href="/restaurants/">맛집 리스트</a>
+
+            {% if request.user.is_authenticated %}
+                <span style="font-size:13px; color:#6b7280; margin-left:12px;">
+                    안녕하세요, {{ request.user.username }} 님
+                </span>
+                <a href="{% url 'logout' %}">로그아웃</a>
+            {% else %}
+                <a href="{% url 'login' %}">로그인</a>
+                <a href="{% url 'signup' %}">회원가입</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <p>© {{ now|default:"2025" }} finals restaurant finder</p>
+</footer>
+</body>
+</html>

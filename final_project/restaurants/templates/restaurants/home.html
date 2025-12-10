@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}홈 | finals 맛집{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1 class="hero-title">내 주변 맛집을 한 눈에</h1>
+    <p class="hero-subtitle">
+        finals 프로젝트용 맛집 추천 서비스입니다. <br>
+        위치 기반으로 가까운 음식점을 찾아볼 수 있어요.
+    </p>
+
+    <div>
+        <a href="/restaurants/" class="btn">맛집 리스트 보기</a>
+        <!-- 나중에 현재 위치 추천 기능 붙일 버튼 -->
+        <button class="btn btn-outline" id="nearby-btn">내 근처 맛집 찾기 (준비중)</button>
+    </div>
+</section>
+{% endblock %}
