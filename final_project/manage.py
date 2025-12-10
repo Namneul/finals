@@ -5,30 +5,6 @@ import sys
 import pymysql
 
 
-"""def create_database_if_not_exists():
-    DB_NAME = "finals"
-    DB_USER = "root"
-    DB_PASSWORD = "123123"
-    DB_HOST = "localhost"
-
-    try:
-        conn = pymysql.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            charset='utf8mb4',
-        )
-        conn.autocommit(True)
-
-        with conn.cursor() as cursor:
-            cursor.execute("CREATE DATABASE IF NOT EXISTS `{DB_NAME}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-
-        conn.close()
-        print("Database `{DB_NAME}` created")
-    except Exception as e:
-        print(f"Database `{DB_NAME}` could not be created: {e}")
-        sys.exit(1)
-        """
 
 
 def main():

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}맛집 검색 | finals 맛집{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 16px;">네이버 지역 검색으로 맛집 찾기</h2>
+
+<form method="get" action="{% url 'restaurant_search' %}" style="margin-bottom:16px;">
+    <input type="text" name="query" placeholder="예: 전주 라멘, 전주 카페"
+           value="{{ query }}" style="padding:6px; width:250px;">
+    <button class="btn" type="submit">검색</button>
+</form>
+
+{% if query and not results %}
+    <p>검색어 "<strong>{{ query }}</strong>" 에 대한 결과가 없습니다.</p>
+{% endif %}
+
+{% if results %}
+    <p style="margin-bottom:8px; font-size:14px;">
+        총 {{ results|length }}개 결과 (네이버 지역 검색 API)
+    </p>
+
+    <div class="card-grid">
+        {% for item in results %}
+            <div class="card">
+                <h3 class="card-title">
+                    {{ item.title|safe }}
+                </h3>
+                <p class="card-meta">
+                    {{ item.category }}
+                </p>
+                <p style="font-size:13px; margin-top:6px;">
+                    {{ item.roadAddress }}<br>
+                    <span style="color:#6b7280;">{{ item.address }}</span>
+                </p>
+                {% if item.telephone %}
+                    <p style="font-size:13px; margin-top:4px;">
+                        ☎ {{ item.telephone }}
+                    </p>
+                {% endif %}
+                <p style="margin-top:8px; font-size:13px;">
+                    <a href="{{ item.link }}" target="_blank">네이버 상세 보기</a>
+                </p>
+
+                {# 여기서부터 나중에: place_id 기반 리뷰 페이지로 연결 가능 #}
+                {# <p><a href="{% url 'place_reviews' item.some_id %}">리뷰 보기</a></p> #}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
