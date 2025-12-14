@@ -27,7 +27,7 @@ def search_local_places(query, display=10, start=1, sort="random"):
     response = requests.get(NAVER_LOCAL_SEARCH_URL, headers=headers, params=params)
 
     if response.status_code == 200:
-        return response.json()
+        return response.json().get("items", [])
 
     else:
         print("NAVER API error", response.status_code, response.text)
