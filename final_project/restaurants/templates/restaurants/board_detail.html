@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .detail-header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+    .detail-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+    .detail-meta { color: #6b7280; font-size: 14px; }
+    
+    .res-info-card { background: #f9fafb; border-left: 5px solid #03C75A; padding: 20px; margin-bottom: 30px; }
+    .res-name-lg { font-size: 20px; font-weight: bold; color: #03C75A; margin-bottom: 5px; }
+    .res-addr-lg { font-size: 15px; color: #4b5563; margin-bottom: 10px; }
+    .btn-map-link { color: #2563eb; text-decoration: underline; font-weight: bold; font-size: 14px; }
+    
+    .post-image-container { text-align: center; margin-bottom: 30px; }
+    .post-image { max-width: 100%; max-height: 500px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+    .post-content { line-height: 1.8; font-size: 16px; margin-bottom: 50px; min-height: 100px; }
+
+    .comments-wrapper { background: #f3f4f6; padding: 25px; border-radius: 12px; }
+    .comment-list { margin-bottom: 20px; }
+    .comment-one { padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+    .comment-user { font-weight: bold; margin-right: 8px; }
+    .comment-date { font-size: 12px; color: #9ca3af; }
+
+    .comment-input-area { display: flex; gap: 8px; }
+    .input-content { width: 85%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; }
+    .btn-cmt { width: 15%; background: #1f2937; color: white; border: none; border-radius: 6px; cursor: pointer; }
+</style>
+
+<div class="detail-header">
+    <div class="detail-title">{{ post.title }}</div>
+    <div class="detail-meta">
+        작성자: {{ post.author.real_name }} ({{ post.author.location }}) | {{ post.created_at|date:"Y.m.d H:i" }}
+    </div>
+</div>
+
+<div class="res-info-card">
+    <div class="res-name-lg">📍 {{ post.res_name }} <span style="font-size:14px; font-weight:normal; color:#6b7280;">({{ post.res_category }})</span></div>
+    <div class="res-addr-lg">{{ post.res_address }}</div>
+    {% if post.res_link %}
+    <a href="{{ post.res_link }}" target="_blank" class="btn-map-link">네이버 지도에서 보기 &gt;</a>
+    {% endif %}
+</div>
+
+{% if post.image %}
+<div class="post-image-container">
+    <img src="{{ post.image.url }}" class="post-image" alt="음식 사진">
+</div>
+{% endif %}
+
+<div class="post-content">
+    {{ post.content|linebreaks }}
+</div>
+
+<div class="comments-wrapper">
+    <h3 style="margin-top:0;">댓글 {{ post.comments.count }}</h3>
+
+    <div class="comment-list">
+        {% for comment in post.comments.all %}
+        <div class="comment-one">
+            <div>
+                <span class="comment-user">{{ comment.author.real_name }}</span>
+                <span class="comment-date">{{ comment.created_at|date:"m.d H:i" }}</span>
+            </div>
+            <div style="margin-top:4px;">{{ comment.content }}</div>
+        </div>
+        {% empty %}
+        <p style="color:#6b7280;">첫 댓글을 남겨보세요.</p>
+        {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <form method="post" class="comment-input-area">
+        {% csrf_token %}
+        <input type="text" name="content" class="input-content" placeholder="댓글 내용을 입력하세요" required>
+        <button type="submit" class="btn-cmt">등록</button>
+    </form>
+    {% else %}
+    <div style="text-align:center; padding:10px;">
+        <a href="{% url 'login' %}" style="color:#2563eb; font-weight:bold;">로그인</a> 후 댓글을 남길 수 있습니다.
+    </div>
+    {% endif %}
+</div>
+
+<div style="margin-top:20px;">
+    <a href="{% url 'board_list' %}" style="text-decoration:none; color:#4b5563;">&larr; 목록으로</a>
+</div>
+{% endblock %}

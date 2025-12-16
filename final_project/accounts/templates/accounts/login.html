@@ -1,17 +1,47 @@
 {% extends 'base.html' %}
 
-{% block title %}로그인 | finals 맛집{% endblock %}
+{% block title %}로그인{% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom: 16px;">로그인</h2>
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .auth-title { font-size: 28px; font-weight: bold; margin-bottom: 30px; color: #333; }
+    .auth-input input {
+        width: 100%; padding: 15px; margin-bottom: 15px;
+        border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px;
+    }
+    .btn-auth {
+        width: 100%; padding: 15px; background-color: #03C75A;
+        color: white; border: none; border-radius: 10px;
+        font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .btn-auth:hover { background-color: #02b150; }
+    .auth-footer { margin-top: 20px; font-size: 14px; color: #666; }
+    .auth-footer a { color: #03C75A; text-decoration: none; font-weight: bold; }
+</style>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn" type="submit">로그인</button>
-</form>
+<div class="auth-container">
+    <div class="auth-title">로그인</div>
 
-<p style="margin-top: 12px; font-size: 14px;">
-    아직 회원이 아니신가요? <a href="{% url 'signup' %}">회원가입</a>
-</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="auth-input">
+            <input type="text" name="username" placeholder="아이디" required autofocus>
+            <input type="password" name="password" placeholder="비밀번호" required>
+        </div>
+        <button type="submit" class="btn-auth">로그인하기</button>
+    </form>
+
+    <div class="auth-footer">
+        아직 회원이 아니신가요? <a href="{% url 'signup' %}">회원가입</a>
+    </div>
+</div>
 {% endblock %}

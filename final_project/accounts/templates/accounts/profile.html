@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}마이페이지{% endblock %}
+
+{% block content %}
+<style>
+    .profile-header {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    .profile-icon {
+        width: 80px; height: 80px;
+        background-color: #03C75A;
+        color: white;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 36px; font-weight: bold;
+    }
+    .profile-info h2 { margin: 0 0 5px 0; font-size: 24px; color: #333; }
+    .profile-info p { margin: 0; color: #666; font-size: 16px; }
+    
+    .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #03C75A; padding-left: 10px; }
+    
+    .my-post-list { display: grid; grid-template-columns: 1fr; gap: 15px; }
+    .my-post-item {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .my-post-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .post-main { display: flex; align-items: center; gap: 15px; }
+    .post-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #eee; }
+    .post-text h3 { margin: 0 0 5px 0; font-size: 18px; color: #333; }
+    .post-text span { font-size: 14px; color: #888; }
+</style>
+
+<div class="profile-header">
+    <div class="profile-icon">
+        {{ user.real_name|slice:":1" }} </div>
+    <div class="profile-info">
+        <h2>{{ user.real_name }}님, 안녕하세요!</h2>
+        <p>📍 {{ user.location }} 거주 | 📧 {{ user.email|default:"이메일 없음" }}</p>
+        <p style="font-size: 13px; margin-top: 5px; color: #999;">가입일: {{ user.date_joined|date:"Y년 m월 d일" }}</p>
+    </div>
+</div>
+
+<div>
+    <div class="section-title">내가 쓴 맛집 기록 ({{ my_posts.count }})</div>
+
+    <div class="my-post-list">
+        {% for post in my_posts %}
+        <a href="{% url 'board_detail' post.pk %}" class="my-post-item">
+            <div class="post-main">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="post-thumb">
+                {% endif %}
+                
+                <div class="post-text">
+                    <h3>{{ post.title }}</h3>
+                    <span>{{ post.res_name }} | {{ post.created_at|date:"Y.m.d" }}</span>
+                </div>
+            </div>
+            <div style="color: #03C75A; font-weight: bold;">
+                💬 {{ post.comments.count }}
+            </div>
+        </a>
+        {% empty %}
+        <div style="text-align: center; padding: 40px; color: #999;">
+            아직 작성한 글이 없습니다. 맛집을 공유해보세요!
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -15,6 +15,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+from django.conf.global_settings import AUTH_USER_MODEL, MEDIA_URL, MEDIA_ROOT
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -134,11 +136,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'login'
+AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 NAVER_CLIENT_ID = "NOW67Ntvqg9Y2zkDWudj"
 NAVER_CLIENT_SECRET = "AiuRwH20zI"
-NAVER_MAP_CLIENT_ID = "6o1vv2dsg8"
-NAVER_MAP_CLIENT_SECRET = "4mWQEdFwuZWyWWKqmbO8I7Bu2FnlEb95gzUtnIQR"
+NAVER_MAP_CLIENT_ID = "2ldquk5up3"
+NAVER_MAP_CLIENT_SECRET = "lP2ZdSDS2abqxcY56uVN8c1KaUaQ0zy5GvruIVdc"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

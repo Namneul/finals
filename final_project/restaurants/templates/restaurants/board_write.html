@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}글쓰기{% endblock %}
+
+{% block content %}
+<style>
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; }
+    input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+    textarea { height: 200px; resize: vertical; }
+    
+    .search-box { background: #f3f4f6; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+    .search-row { display: flex; gap: 10px; }
+    .btn-search { background: #1f2937; color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .search-results { background: white; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 10px; display: none; max-height: 200px; overflow-y: auto; }
+    .result-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .result-item:hover { background: #f9fafb; }
+    .result-item:last-child { border-bottom: none; }
+    
+    .btn-submit { width: 100%; background: #03C75A; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+</style>
+
+<h2>✏️ 맛집 추천하기</h2>
+
+<div class="search-box">
+    <label>식당 검색 (필수)</label>
+    <div class="search-row">
+        <input type="text" id="keyword" placeholder="예: 전북대 맛집, 객사 파스타">
+        <button type="button" class="btn-search" onclick="searchRes()">검색</button>
+    </div>
+    <div class="search-results" id="search-list"></div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label>선택된 식당</label>
+        {{ form.res_name }}
+    </div>
+    
+    {{ form.res_address }}
+    {{ form.res_category }}
+    {{ form.res_link }}
+
+    <div class="form-group">
+        <label>작성자</label>
+        {{ form.nickname }}
+    </div>
+
+    <div class="form-group">
+        <label>제목</label>
+        {{ form.title }}
+    </div>
+
+    <div class="form-group">
+        <label>음식 사진</label>
+        {{ form.image }}
+    </div>
+
+    <div class="form-group">
+        <label>내용</label>
+        {{ form.content }}
+    </div>
+
+    <button type="submit" class="btn-submit">등록하기</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function searchRes() {
+        var kw = $('#keyword').val();
+        if(!kw) { alert("검색어를 입력하세요"); return; }
+        
+        $('.btn-search').text('...');
+        $.ajax({
+            url: '{% url "board_search_api" %}',
+            data: { query: kw },
+            success: function(res) {
+                $('.btn-search').text('검색');
+                var list = $('#search-list');
+                list.empty().show();
+                
+                if(res.items.length === 0) {
+                    list.append('<div class="result-item">검색 결과가 없습니다.</div>');
+                    return;
+                }
+                
+                res.items.forEach(function(item) {
+                    var html = `
+                        <div class="result-item" onclick="selectItem('${item.title}', '${item.address}', '${item.category}', '${item.link}')">
+                            <strong style="color:#03C75A">${item.title}</strong><br>
+                            <span style="font-size:12px; color:#666;">${item.category} | ${item.address}</span>
+                        </div>
+                    `;
+                    list.append(html);
+                });
+            }
+        });
+    }
+
+    function selectItem(title, addr, cate, link) {
+        $('input[name="res_name"]').val(title);
+        $('input[name="res_address"]').val(addr);
+        $('input[name="res_category"]').val(cate);
+        $('input[name="res_link"]').val(link);
+        $('#search-list').hide();
+        $('#keyword').val('');
+        alert("식당이 선택되었습니다!");
+    }
+</script>
+{% endblock %}

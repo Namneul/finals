@@ -1,17 +1,48 @@
 {% extends 'base.html' %}
 
-{% block title %}회원가입 | finals 맛집{% endblock %}
+{% block title %}회원가입{% endblock %}
 
 {% block content %}
-<h2 style="margin-bottom: 16px;">회원가입</h2>
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .auth-title { text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 30px; color: #333; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #555; }
+    .form-group input {
+        width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+    }
+    .help-text { font-size: 12px; color: #888; margin-top: 4px; display: none;} /* 지저분한 도움말 숨김 */
+    .btn-auth {
+        width: 100%; padding: 15px; background-color: #03C75A;
+        color: white; border: none; border-radius: 10px; margin-top: 20px;
+        font-size: 18px; font-weight: bold; cursor: pointer;
+    }
+</style>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn" type="submit">가입하기</button>
-</form>
+<div class="auth-container">
+    <div class="auth-title">회원가입</div>
 
-<p style="margin-top: 12px; font-size: 14px;">
-    이미 계정이 있으신가요? <a href="{% url 'login' %}">로그인</a>
-</p>
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+                <div style="color:red; font-size:12px; margin-top:5px;">{{ field.errors.0 }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn-auth">가입완료</button>
+    </form>
+</div>
 {% endblock %}

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}오늘의 메뉴 추천{% endblock %}
+
+{% block content %}
+<style>
+    .roulette-wrapper {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 0;
+    }
+    .random-box {
+        width: 100%;
+        max-width: 400px;
+        height: 200px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+        border: 5px solid #03C75A;
+        position: relative;
+    }
+    .food-text {
+        font-size: 36px;
+        font-weight: 900;
+        color: #333;
+    }
+    .highlight {
+        color: #FF5722;
+        transform: scale(1.1);
+        transition: transform 0.2s;
+    }
+    .btn-spin {
+        padding: 15px 50px;
+        font-size: 20px;
+        background-color: #03C75A;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    .btn-spin:disabled { background-color: #ccc; }
+    
+    #result-modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+    }
+    .winner-text { font-size: 28px; color: #FF5722; font-weight: bold; margin: 20px 0; }
+    .modal-input {
+        padding: 12px; width: 100%; font-size: 16px; 
+        border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px;
+        box-sizing: border-box; text-align: center;
+    }
+    .btn-search { width: 100%; padding: 12px; background: #03C75A; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    .result-list { width: 100%; max-width: 600px; margin-top: 40px; text-align: left; }
+    .place-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+    .place-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .place-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .place-meta { font-size: 14px; color: #666; margin-bottom: 10px; }
+    .place-link { display: block; text-align: right; color: #03C75A; font-weight: bold; text-decoration: none; }
+</style>
+
+<div class="roulette-wrapper">
+    <h2 style="margin-bottom:20px;">🎲 오늘 뭐 먹지?</h2>
+    
+    <div class="random-box">
+        <div class="food-text" id="display-text">메뉴 추천받기</div>
+    </div>
+    
+    <button class="btn-spin" id="spin-btn" onclick="startRandom()">추천 시작!</button>
+
+    <div class="result-list" id="restaurant-list"></div>
+</div>
+
+<div id="result-modal">
+    <div class="modal-content">
+        <h3>🎉 당첨!</h3>
+        <div class="winner-text" id="winner-food"></div>
+        <p>현재 위치를 입력해주세요</p>
+        <input type="text" class="modal-input" id="location-input" placeholder="예: 전북대, 객사, 신시가지">
+        <button class="btn-search" onclick="searchRestaurants()">식당 검색</button>
+        <button onclick="$('#result-modal').fadeOut()" style="margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">닫기</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const foods = [
+        "김치찌개", "된장찌개", "순두부찌개", "부대찌개", "청국장", "동태찌개", "비지찌개", "짜글이", "육개장", "갈비탕",
+        "설렁탕", "곰탕", "삼계탕", "반계탕", "추어탕", "감자탕", "뼈해장국", "선지해장국", "콩나물국밥", "순대국밥",
+        "돼지국밥", "소머리국밥", "굴국밥", "비빔밥", "돌솥비빔밥", "제육볶음", "오징어볶음", "낙지볶음", "쭈꾸미볶음", "김치볶음밥",
+        "짜장면", "짬뽕", "간짜장", "쟁반짜장", "탕수육", "깐풍기", "유산슬", "마파두부", "마라탕", "마라샹궈",
+        "양꼬치", "돈까스", "치즈돈까스", "생선까스", "규동", "가츠동", "사케동", "텐동", "우동", "냉모밀",
+        "라멘", "소바", "초밥", "회덮밥", "물회", "알밥", "칼국수", "수제비", "잔치국수", "비빔국수",
+        "쫄면", "막국수", "물냉면", "비빔냉면", "콩국수", "떡만두국", "떡볶이", "라볶이", "김밥", "순대",
+        "햄버거", "피자", "파스타", "리조또", "스테이크", "샌드위치", "토스트", "샐러드", "포케", "쌀국수",
+        "팟타이", "나시고랭", "타코", "부리또", "족발", "보쌈", "닭발", "곱창", "막창", "찜닭", "닭갈비", "치킨"
+    ];
+
+    let intervalId = null;
+
+    function startRandom() {
+        $('#restaurant-list').empty();
+        $('#spin-btn').prop('disabled', true).text('두근두근...');
+        $('.random-box').css('border-color', '#03C75A');
+        $('#display-text').removeClass('highlight');
+
+        intervalId = setInterval(() => {
+            const randomFood = foods[Math.floor(Math.random() * foods.length)];
+            $('#display-text').text(randomFood);
+        }, 50);
+
+        setTimeout(() => {
+            clearInterval(intervalId);
+            const finalFood = foods[Math.floor(Math.random() * foods.length)];
+            $('#display-text').text(finalFood).addClass('highlight');
+            $('.random-box').css('border-color', '#FF5722');
+            $('#spin-btn').prop('disabled', false).text('다시 돌리기');
+            
+            setTimeout(() => {
+                $('#winner-food').text(finalFood);
+                $('#result-modal').fadeIn().css('display', 'flex');
+                $('#location-input').focus();
+            }, 600);
+        }, 1500);
+    }
+
+    function searchRestaurants() {
+        const food = $('#winner-food').text();
+        const location = $('#location-input').val();
+        
+        if(!location) { alert('위치를 입력해주세요'); return; }
+        
+        $('.btn-search').text('검색 중...');
+        
+        $.ajax({
+            url: '{% url "roulette_search" %}',
+            data: { food: food, location: location },
+            success: function(res) {
+                $('#result-modal').fadeOut();
+                $('.btn-search').text('식당 검색');
+                displayResults(res.places);
+            }
+        });
+    }
+
+    function displayResults(places) {
+        const list = $('#restaurant-list');
+        list.empty();
+        
+        if(places.length === 0) {
+            list.append('<p>검색 결과가 없습니다.</p>');
+            return;
+        }
+
+        places.forEach(p => {
+            list.append(`
+                <div class="place-card" onclick="window.open('${p.link}')">
+                    <div class="place-title">${p.title}</div>
+                    <div class="place-meta">${p.category} | ${p.address}</div>
+                    <a href="${p.link}" target="_blank" class="place-link">네이버 지도 보기 &gt;</a>
+                </div>
+            `);
+        });
+        
+        $('html, body').animate({ scrollTop: list.offset().top - 100 }, 500);
+    }
+
+    $('#location-input').on('keypress', function(e) {
+        if(e.which == 13) searchRestaurants();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}오늘의 맛집 - 홈{% endblock %}
+
+{% block content %}
+<style>
+    /* 1. 히어로 섹션 (랜덤 추천 & 환영 문구) */
+    .hero-section {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #03C75A 0%, #02b150 100%);
+        border-radius: 20px;
+        color: white;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 20px rgba(3, 199, 90, 0.2);
+    }
+    .hero-title { font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+    .hero-subtitle { font-size: 18px; margin-bottom: 30px; opacity: 0.9; }
+    
+    .btn-roulette {
+        background: white; color: #03C75A;
+        border: none; padding: 15px 30px; border-radius: 50px;
+        font-size: 20px; font-weight: bold; cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .btn-roulette:hover { transform: scale(1.05); }
+    .roulette-result { margin-top: 20px; font-size: 24px; font-weight: bold; height: 30px; }
+
+    /* 2. 검색창 섹션 */
+    .search-container {
+        max-width: 600px; margin: 0 auto 50px auto; text-align: center;
+    }
+    .search-input {
+        width: 70%; padding: 15px; border: 2px solid #eee; border-radius: 50px 0 0 50px;
+        font-size: 16px; outline: none; padding-left: 25px;
+    }
+    .search-btn {
+        width: 20%; padding: 15px; background: #333; color: white;
+        border: 2px solid #333; border-radius: 0 50px 50px 0;
+        font-size: 16px; font-weight: bold; cursor: pointer;
+    }
+
+    /* 3. 최신 리뷰 섹션 */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-title { font-size: 22px; font-weight: bold; border-left: 5px solid #333; padding-left: 15px; }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* 반응형 그리드 */
+        gap: 20px;
+    }
+    .gallery-card {
+        background: white; border-radius: 15px; overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;
+        text-decoration: none; color: inherit; display: block;
+    }
+    .gallery-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    
+    .card-img {
+        width: 100%; height: 180px; object-fit: cover;
+        background-color: #eee; /* 이미지 없을 때 배경색 */
+    }
+    .card-body { padding: 15px; }
+    .card-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-info { font-size: 13px; color: #888; }
+</style>
+
+<div class="hero-section">
+    <div class="hero-title">오늘 뭐 먹지? 고민될 땐!</div>
+    <div class="hero-subtitle">맛집 커뮤니티에서 진짜 후기를 찾아보세요.</div>
+    
+    <button class="btn-roulette" onclick="startRoulette()">🎲 랜덤 메뉴 추천받기</button>
+    <div id="rouletteResult" class="roulette-result"></div>
+</div>
+
+<form action="{% url 'board_list' %}" method="get" class="search-container">
+    <input type="text" name="q" class="search-input" placeholder="식당 이름이나 메뉴를 검색해보세요!">
+    <button type="submit" class="search-btn">검색</button>
+</form>
+
+<div class="section-header">
+    <div class="section-title">따끈따끈한 최신 리뷰 🔥</div>
+    <a href="{% url 'board_list' %}" style="color:#666; text-decoration:none;">더보기 &gt;</a>
+</div>
+
+<div class="gallery-grid">
+    {% for post in recent_posts %}
+    <a href="{% url 'board_detail' post.pk %}" class="gallery-card">
+        {% if post.image %}
+            <img src="{{ post.image.url }}" class="card-img">
+        {% else %}
+            <div class="card-img" style="display:flex; align-items:center; justify-content:center; color:#999;">
+                이미지 없음
+            </div>
+        {% endif %}
+        
+        <div class="card-body">
+            <div class="card-title">{{ post.title }}</div>
+            <div class="card-info">
+                {{ post.res_name }}<br>
+                ⭐ {{ post.author.real_name }}
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">
+        아직 등록된 리뷰가 없습니다. 첫 글을 남겨주세요!
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function startRoulette() {
+        const menus = ['삼겹살', '치킨', '떡볶이', '파스타', '국밥', '초밥', '햄버거', '피자', '김치찌개', '짜장면', '쌀국수', '마라탕'];
+        const resultDiv = document.getElementById('rouletteResult');
+        let count = 0;
+        
+        // 0.1초마다 메뉴 바꾸기 (애니메이션 효과)
+        const interval = setInterval(() => {
+            const randomMenu = menus[Math.floor(Math.random() * menus.length)];
+            resultDiv.innerText = `오늘의 추천: ${randomMenu}`;
+            count++;
+            
+            // 20번 바뀌면 멈춤
+            if (count > 20) {
+                clearInterval(interval);
+                resultDiv.style.color = "#ffff00"; // 결과 강조색
+            }
+        }, 50);
+    }
+</script>
+
+{% endblock %}
