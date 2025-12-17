@@ -20,6 +20,9 @@ def signup_view(request):
 def profile_view(request):
     my_posts = Post.objects.filter(author=request.user).order_by('-created_at')
 
+    scrapped_posts = request.user.scrapped_posts.all().order_by('-created_at')
+
     return render(request, 'accounts/profile.html', {
-        'my_posts': my_posts
+        'my_posts': my_posts,
+        'scrapped_posts': scrapped_posts,
     })

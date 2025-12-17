@@ -209,3 +209,15 @@ def board_detail(request, pk):
         'post': post,
         'form': form
     })
+
+
+@login_required(login_url='login')
+def scrap_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+
+    if request.user in post.scraps.all():
+        post.scraps.remove(request.user)
+    else:
+        post.scraps.add(request.user)
+
+    return redirect('board_detail', pk=pk)

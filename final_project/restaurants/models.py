@@ -7,6 +7,7 @@ class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="작성자")
     title = models.CharField(max_length=200)
     content = models.TextField()
+    scraps = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='scrapped_posts', blank=True)
 
     image = models.ImageField(upload_to='restaurant_images/', blank=True, null=True, verbose_name="음식 사진")
 

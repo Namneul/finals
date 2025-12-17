@@ -36,6 +36,21 @@
     </div>
 </div>
 
+<div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="detail-title">{{ post.title }}</div>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'scrap_post' post.pk %}" style="text-decoration: none;">
+            {% if user in post.scraps.all %}
+                <span style="font-size: 24px; color: red;">♥ 찜 취소</span>
+            {% else %}
+                <span style="font-size: 24px; color: gray;">♡ 찜하기</span>
+            {% endif %}
+            <span style="font-size: 14px; color: #666;">({{ post.scraps.count }})</span>
+        </a>
+    {% endif %}
+</div>
+
 <div class="res-info-card">
     <div class="res-name-lg">📍 {{ post.res_name }} <span style="font-size:14px; font-weight:normal; color:#6b7280;">({{ post.res_category }})</span></div>
     <div class="res-addr-lg">{{ post.res_address }}</div>

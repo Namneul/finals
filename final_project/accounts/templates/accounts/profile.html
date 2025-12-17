@@ -25,8 +25,8 @@
     .profile-info h2 { margin: 0 0 5px 0; font-size: 24px; color: #333; }
     .profile-info p { margin: 0; color: #666; font-size: 16px; }
     
-    .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #03C75A; padding-left: 10px; }
-    
+    .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-left: 5px solid #03C75A; padding-left: 10px; margin-top: 40px; }
+
     .my-post-list { display: grid; grid-template-columns: 1fr; gap: 15px; }
     .my-post-item {
         background: white;
@@ -47,7 +47,8 @@
 
 <div class="profile-header">
     <div class="profile-icon">
-        {{ user.real_name|slice:":1" }} </div>
+        {{ user.real_name|slice:":1" }}
+    </div>
     <div class="profile-info">
         <h2>{{ user.real_name }}님, 안녕하세요!</h2>
         <p>📍 {{ user.location }} 거주 | 📧 {{ user.email|default:"이메일 없음" }}</p>
@@ -65,7 +66,7 @@
                 {% if post.image %}
                     <img src="{{ post.image.url }}" class="post-thumb">
                 {% endif %}
-                
+
                 <div class="post-text">
                     <h3>{{ post.title }}</h3>
                     <span>{{ post.res_name }} | {{ post.created_at|date:"Y.m.d" }}</span>
@@ -77,7 +78,35 @@
         </a>
         {% empty %}
         <div style="text-align: center; padding: 40px; color: #999;">
-            아직 작성한 글이 없습니다. 맛집을 공유해보세요!
+            아직 작성한 글이 없습니다.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div>
+    <div class="section-title">내가 찜한 맛집 ({{ scrapped_posts.count }})</div>
+
+    <div class="my-post-list">
+        {% for post in scrapped_posts %}
+        <a href="{% url 'board_detail' post.pk %}" class="my-post-item">
+            <div class="post-main">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="post-thumb">
+                {% endif %}
+
+                <div class="post-text">
+                    <h3>{{ post.title }}</h3>
+                    <span>{{ post.res_name }} | {{ post.author.real_name }}님 작성</span>
+                </div>
+            </div>
+            <div style="color: #ff0000; font-weight: bold;">
+                ♥
+            </div>
+        </a>
+        {% empty %}
+        <div style="text-align: center; padding: 40px; color: #999;">
+            아직 찜한 맛집이 없습니다.
         </div>
         {% endfor %}
     </div>
